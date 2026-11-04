@@ -10,20 +10,6 @@
         "command": "uv run --no-project \"$HOME/.claude/hooks/guard.py\"",
         "timeout": 10
       }]
-    }],
-    "Stop": [{
-      "hooks": [{
-        "type": "command",
-        "command": "uv run --no-project \"$HOME/.claude/hooks/notification.py\" --notify",
-        "timeout": 15
-      }]
-    }],
-    "Notification": [{
-      "hooks": [{
-        "type": "command",
-        "command": "uv run --no-project \"$HOME/.claude/hooks/notification.py\" --permission",
-        "timeout": 15
-      }]
     }]
   },
   "statusLine": {
@@ -31,10 +17,6 @@
     "command": "uv run --no-project \"$HOME/.claude/hooks/statusline.py\"",
     "padding": 0,
     "refreshInterval": 60
-  },
-  "env": {
-    "DESKTOP_NOTIFICATIONS": "1",
-    "GUARD_PROTECTED_UNITS": ""
   },
   "attribution": {
     "commit": "",

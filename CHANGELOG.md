@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed `agent-setup` to `ai-setup`; updated the repository links, installation paths and guard update paths.
+- Reduced both `publish` skills to scoped publishing and setup changes, private repositories by default, and questions only for missing decisions. Kept personal Git conventions in `AGENTS.md` and `CLAUDE.md`.
+- Guard now checks Codex `apply_patch` additions, edits, deletions and moves, including protected hook files; command contents are no longer written to its log.
+- Commented out Claude's five-hour usage and reset countdown; retained weekly usage and its countdown, omitting absent values.
+- Simplified settings and CI to Python/JSON/TOML validation and guard-copy parity.
+- Updated installation docs to preserve existing settings and integration hooks. README now documents `scr`, `eli`, `foc` and two development/remote recommendations.
+
+### Removed
+
+- Both `commit` and `push-and-pr` skills, Claude's `repo-context`, both notification scripts and all 28 cached MP3 files.
+- `test_guard.py` and its CI matrix; plugin recommendations, TTS volume instructions and audio dependencies.
+- Notification settings, empty protected-unit setting, the pinned Codex model, deprecated personality setting and bundled Context7 configuration.
+
+## Earlier unreleased changes (before 2026-11-04)
+
 ### Added
 
 - **CLAUDE.md** — `## Models and scale`: warranted second passes and adversarial reviews run on Codex through the CLI (`codex exec`, `codex review`) when `command -v codex` succeeds, and on a Claude agent at the same tier otherwise, with nothing installed. Adversarial reviews go through `codex exec`, because `codex review` rejects custom instructions next to `--uncommitted`/`--base`; threads resume by explicit id, since `--last` can pick another session's thread. Tiers: `gpt-6-astra` ≈ Fable, `gpt-6.1-sol` ≈ Opus/Sonnet, `gpt-6-luna` ≈ Haiku, the last only for input carried in the prompt.

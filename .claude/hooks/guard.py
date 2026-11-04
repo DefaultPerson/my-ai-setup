@@ -786,9 +786,10 @@ def check_upload(cmd: str, args: list[str]) -> tuple[int, str | None]:
     return ALLOW, None
 
 
-def _home_paths(home: str) -> tuple[str, tuple[str, str]]:
-    return (home + '/projects/misc/agent-setup/.claude/hooks/guard.py',
-            (home + '/.claude/hooks/guard.py', home + '/.claude-personal/hooks/guard.py'))
+def _home_paths(home: str) -> tuple[str, tuple[str, ...]]:
+    return (home + '/projects/misc/ai-setup/.claude/hooks/guard.py',
+            (home + '/.claude/hooks/guard.py', home + '/.claude-personal/hooks/guard.py',
+             home + '/.codex/hooks/guard.py'))
 
 
 REPO_GUARD, DEPLOYED_GUARDS = _home_paths(HOME)
@@ -837,7 +838,10 @@ def is_allowed_install(cmd: str, args: list[str]) -> bool:
         repo = _realpath(REPO_GUARD)
     except OSError:
         repo = REPO_GUARD
-    return src == repo and dst == HOME + '/.claude/hooks/guard.py'
+    codex_repo = _realpath(REPO_GUARD.removesuffix('/.claude/hooks/guard.py')
+                           + '/.codex/hooks/guard.py')
+    return ((src == repo and dst == HOME + '/.claude/hooks/guard.py')
+            or (src == codex_repo and dst == HOME + '/.codex/hooks/guard.py'))
 
 
 def _check_settings_change(content, tool_name, edits) -> tuple[int, str | None]:
@@ -845,6 +849,8 @@ def _check_settings_change(content, tool_name, edits) -> tuple[int, str | None]:
     def bad_new(new):
         return 'disableAllHooks' in (new or '')
 
+    if tool_name == 'Delete':
+        return DENY, 'removing hook settings can disable the guard — edit the settings instead'
     if tool_name == 'Write' and content is not None:
         if 'disableAllHooks' in content:
             return DENY, 'settings change adds disableAllHooks — that turns the guard off'
@@ -869,7 +875,7 @@ def _check_settings_change(content, tool_name, edits) -> tuple[int, str | None]:
     return ALLOW, None
 
 
-SETTINGS_RE = re.compile(r'/\.claude(?:-personal)?/settings[^/]*\.json$')
+SETTINGS_RE = re.compile(r'/(?:\.claude(?:-personal)?/settings[^/]*|\.codex/hooks)\.json$')
 
 
 def check_write_path(path: str, content=None, tool_name=None, edits=None,
@@ -893,7 +899,7 @@ def check_write_path(path: str, content=None, tool_name=None, edits=None,
 
     if is_deployed_guard(p):
         return DENY, ('editing the deployed guard hook — edit the copy in '
-                      '~/projects/misc/agent-setup, run the tests, then install it')
+                      '~/projects/misc/ai-setup, validate it, then install it')
 
     if SETTINGS_RE.search(p):
         return _check_settings_change(content, tool_name, edits)
@@ -1307,11 +1313,61 @@ def evaluate_bash(command: str, depth: int = 0, cwd: str | None = None,
     return worst, reason
 
 
+def evaluate_patch(patch: str, cwd: str | None) -> tuple[int, str | None]:
+    """Apply the file-tool rules to every path and hunk in a Codex patch."""
+    lines = patch.splitlines()
+    i = 0
+    while i < len(lines):
+        header = re.fullmatch(r'\*\*\* (Add|Update|Delete) File: (.+)', lines[i])
+        i += 1
+        if not header:
+            continue
+        kind, path = header.groups()
+        move, body = None, []
+        while i < len(lines) and not lines[i].startswith(
+                ('*** Add File: ', '*** Update File: ', '*** Delete File: ', '*** End Patch')):
+            if lines[i].startswith('*** Move to: '):
+                move = lines[i][len('*** Move to: '):]
+            else:
+                body.append(lines[i])
+            i += 1
+        if kind == 'Add':
+            content = '\n'.join(line[1:] for line in body if line.startswith('+'))
+            verdict = check_write_path(path, content=content, tool_name='Write', cwd=cwd)
+        elif kind == 'Delete' or move:
+            verdict = check_write_path(path, tool_name='Delete', cwd=cwd)
+        else:
+            verdict = check_write_path(path, cwd=cwd)
+        if verdict[0] == DENY:
+            return verdict
+        targets = [path]
+        if move:
+            targets.append(move)
+        if kind == 'Update':
+            # Check hunks separately so an unrelated context line cannot hide
+            # removal of a guard entry in another hunk.
+            hunks = re.split(r'^@@.*$', '\n'.join(body), flags=re.MULTILINE)
+            for target in targets:
+                for hunk in hunks:
+                    old = '\n'.join(line[1:] for line in hunk.splitlines()
+                                    if line.startswith(('-', ' ')))
+                    new = '\n'.join(line[1:] for line in hunk.splitlines()
+                                    if line.startswith(('+', ' ')))
+                    verdict = check_write_path(target, tool_name='Edit',
+                                               edits={'old_string': old, 'new_string': new},
+                                               cwd=cwd)
+                    if verdict[0] == DENY:
+                        return verdict
+    return ALLOW, None
+
+
 def evaluate(tool_name: str, tool_input: dict, cwd: str | None = None) -> tuple[int, str | None]:
     if not isinstance(tool_input, dict):
         return ALLOW, None
     if tool_name == 'Bash':
         return evaluate_bash(tool_input.get('command', ''), cwd=cwd)
+    if tool_name == 'apply_patch':
+        return evaluate_patch(tool_input.get('command', ''), cwd)
     if tool_name in ('Read', 'Grep'):
         path = tool_input.get('file_path') or tool_input.get('path') or ''
         hit = classify_credential_path(path)
@@ -1364,15 +1420,11 @@ def log_action(log_dir: Path, tool_name: str, tool_input: dict, decision: str, r
             path.replace(path.with_suffix('.jsonl.old'))
     except OSError:
         pass
-    summary = ''
-    if isinstance(tool_input, dict):
-        summary = tool_input.get('command') or tool_input.get('file_path') or ''
     entry = {
         'timestamp': datetime.now().isoformat(timespec='seconds'),
         'tool_name': tool_name,
         'decision': decision,
         'reason': reason,
-        'input': str(summary)[:500],
     }
     try:
         with open(path, 'a', encoding='utf-8') as f:

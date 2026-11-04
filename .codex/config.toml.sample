@@ -1,28 +1,16 @@
 # Codex CLI configuration
-# Equivalent of .claude/settings.example.json
-# Copy to ~/.codex/config.toml and edit paths/keys
+# Merge into ~/.codex/config.toml; choose a model with /model.
 
-model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
-personality = "pragmatic"
 approval_policy = "on-request"
 
 [features]
-# hooks, multi_agent and plugins are on by default; completion alerts come from the Stop hook in hooks.json
 apps = false
 tool_suggest = false
 
 [tui]
 # Configure interactively with /statusline.
-# Colors follow the active /theme. Custom .tmTheme files can be placed in
-# $CODEX_HOME/themes/ and selected with /theme.
 status_line_use_colors = true
-# Useful built-in items include:
-# project, project-name, current-dir, run-state, thread, thread-title,
-# git-branch, context-remaining, context-used, five-hour-limit, weekly-limit,
-# codex-version, used-tokens, total-input-tokens, total-output-tokens,
-# session-id, fast-mode, model-with-reasoning, task-progress,
-# pull-request-number, branch-changes, context-window-size, raw-output.
 status_line = [
   "current-dir",
   "git-branch",
@@ -36,13 +24,4 @@ status_line = [
 [shell_environment_policy]
 inherit = "core"
 
-# MCP Servers
-[mcp_servers.context7]
-url = "https://mcp.context7.com/mcp"
-# With a Context7 key: export CONTEXT7_API_KEY and uncomment (header name -> env var).
-# Left enabled without the variable, `codex doctor` warns about a missing MCP env var.
-# env_http_headers = { CONTEXT7_API_KEY = "CONTEXT7_API_KEY" }
-
-# Hook trust state is intentionally not templated here because Codex keys it by
-# the absolute local hooks.json path. After copying hooks.json, open /hooks and
-# trust the PreToolUse and Stop hooks once.
+# Trust the PreToolUse hook through /hooks after merging hooks.json.

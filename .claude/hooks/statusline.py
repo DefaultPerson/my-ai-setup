@@ -90,10 +90,10 @@ def main():
     ctx_window = data.get("context_window", {})
     pct = ctx_window.get("used_percentage")
 
-    # Rate limits (Claude.ai Pro/Max only)
-    rate_limits = data.get("rate_limits", {})
-    five_hour = rate_limits.get("five_hour", {})
-    seven_day = rate_limits.get("seven_day", {})
+    # Subscription rate limits; the five-hour display is disabled by preference.
+    rate_limits = data.get("rate_limits") or {}
+    # five_hour = rate_limits.get("five_hour", {})
+    seven_day = rate_limits.get("seven_day") or {}
 
     # Project folder name
     folder = Path(project_dir).name if project_dir else ""
@@ -128,21 +128,23 @@ def main():
     if effort:
         line2.append(f"{EFFORT}{effort}{R}")
 
-    # Rate limits — compact 5h%/7d% + dim time left to reset: "1%/76% (4h/48h)".
-    # CC drops a window once it resets, so an absent one shows as "-".
-    windows = (five_hour, seven_day)
+    # Weekly usage and time left to reset; omit missing windows and countdowns.
+    windows = (seven_day,)
+    # windows = (five_hour, seven_day)  # Restore both windows and their countdowns.
+    windows = tuple(w for w in windows if w.get("used_percentage") is not None)
     pcts = [w.get("used_percentage") for w in windows]
-    if any(p is not None for p in pcts):
-        worst = max(p for p in pcts if p is not None)
+    if pcts:
+        worst = max(pcts)
         if worst < 50:
             rl_color = GREEN
         elif worst < 80:
             rl_color = YELLOW
         else:
             rl_color = RED
-        rl_text = "/".join(f"{p:.0f}%" if p is not None else "-" for p in pcts)
-        left = "/".join(fmt_left(w["resets_at"]) if w.get("resets_at") else "-" for w in windows)
-        line2.append(f"{rl_color}{rl_text}{R} {D}({left}){R}")
+        rl_text = "/".join(f"{p:.0f}%" for p in pcts)
+        left = "/".join(fmt_left(w["resets_at"]) for w in windows if w.get("resets_at"))
+        countdown = f" {D}({left}){R}" if left else ""
+        line2.append(f"{rl_color}{rl_text}{R}{countdown}")
 
     # Context bar — bar + tokens in context, in k (e.g. [####---] 133k)
     if pct is not None:
