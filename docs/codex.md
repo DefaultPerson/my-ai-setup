@@ -7,9 +7,9 @@ Paste into Codex — or follow the steps manually:
 ```
 Prerequisites: Python 3.10+ (CI uses 3.12), available as python3. For /publish: git and authenticated gh.
 
-1. Download https://github.com/DefaultPerson/ai-setup to ~/projects/misc/ai-setup.
+1. Download https://github.com/DefaultPerson/my-ai-setup to ~/projects/misc/my-ai-setup.
 2. Create ~/.codex/hooks/ if absent. Install the guard from the downloaded directory:
-   install -m 0644 ~/projects/misc/ai-setup/.codex/hooks/guard.py ~/.codex/hooks/guard.py
+   install -m 0644 ~/projects/misc/my-ai-setup/.codex/hooks/guard.py ~/.codex/hooks/guard.py
    Preserve unrelated hook files.
 3. Merge the PreToolUse entry from .codex/hooks.json into ~/.codex/hooks.json:
    matcher Bash|apply_patch, command python3 "$HOME/.codex/hooks/guard.py".
@@ -25,7 +25,7 @@ Prerequisites: Python 3.10+ (CI uses 3.12), available as python3. For /publish: 
 9. Start a fresh session. Check guard.py directly with representative hook JSON, without
    executing the tools: harmless input should be allowed and a protected operation denied.
    Configure the status line with /statusline.
-10. Keep ~/projects/misc/ai-setup: guard updates use this source path.
+10. Keep ~/projects/misc/my-ai-setup: guard updates use this source path.
 ```
 
 Copying this setup does not remove hooks or skills from an older installation; review those separately.

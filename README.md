@@ -1,4 +1,4 @@
-# ai-setup
+# my-ai-setup
 
 Shared setup for [Claude Code](https://code.claude.com/docs) and [OpenAI Codex CLI](https://developers.openai.com/codex/cli).
 

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Renamed `ai-setup` to `my-ai-setup`; updated the repository links and local installation paths.
 - Renamed `agent-setup` to `ai-setup`; updated the repository links, installation paths and guard update paths.
 - Reduced both `publish` skills to scoped publishing and setup changes, private repositories by default, and questions only for missing decisions. Kept personal Git conventions in `AGENTS.md` and `CLAUDE.md`.
 - Guard now checks Codex `apply_patch` additions, edits, deletions and moves, including protected hook files; command contents are no longer written to its log.

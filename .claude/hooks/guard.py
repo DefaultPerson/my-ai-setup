@@ -787,7 +787,7 @@ def check_upload(cmd: str, args: list[str]) -> tuple[int, str | None]:
 
 
 def _home_paths(home: str) -> tuple[str, tuple[str, ...]]:
-    return (home + '/projects/misc/ai-setup/.claude/hooks/guard.py',
+    return (home + '/projects/misc/my-ai-setup/.claude/hooks/guard.py',
             (home + '/.claude/hooks/guard.py', home + '/.claude-personal/hooks/guard.py',
              home + '/.codex/hooks/guard.py'))
 
@@ -899,7 +899,7 @@ def check_write_path(path: str, content=None, tool_name=None, edits=None,
 
     if is_deployed_guard(p):
         return DENY, ('editing the deployed guard hook — edit the copy in '
-                      '~/projects/misc/ai-setup, validate it, then install it')
+                      '~/projects/misc/my-ai-setup, validate it, then install it')
 
     if SETTINGS_RE.search(p):
         return _check_settings_change(content, tool_name, edits)
