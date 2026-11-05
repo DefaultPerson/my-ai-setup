@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Native `ui-iterate` for bounded UI/UX refinement: independent reviews, consistent visual comparisons and actual user-flow checks, adapted from Theo Browne's council process.
 - Native `svgl`, `autoresearch` and `verify-done` skills for Claude Code and Codex, plus Claude-only `babysit`, moved from `DefaultPerson/skills`.
 - A standalone `grill-me` adapted from Matt Pocock's `grill-me` and `grilling`, with no second skill dependency and explicit invocation in both clients.
 

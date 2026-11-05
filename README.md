@@ -16,6 +16,7 @@ Native skill folders, without a plugin or marketplace. Claude: `/name`; Codex: `
 - **autoresearch** — bounded experiments against one metric: commit, measure, keep or revert.
 - **verify-done** — check the original requirements and real scenarios; report gaps without fixing them.
 - **grill-me** — stress-test a plan through questions ordered by their dependencies, before implementation.
+- **ui-iterate** — refine UI/UX through bounded independent reviews, visual references and real user-flow checks.
 - **babysit** — watch a service, coordinate scoped fixes and deployment, and escalate trouble; Claude Code only.
 
 ## Prerequisites
@@ -24,6 +25,7 @@ Native skill folders, without a plugin or marketplace. Claude: `/name`; Codex: `
 - `publish`: Git and authenticated GitHub CLI (`gh`); `autoresearch`: Git and the project's metric/test tools.
 - `svgl`: Bash, curl, jq and Python 3, with network access to svgl.app.
 - `babysit`: Claude Code `/loop`, service log/health access and an escalation channel; deployment modes need a recovery path.
+- `ui-iterate`: a running UI or screenshots and available review agents; interaction checks require access to the actual UI.
 
 ## Setup
 

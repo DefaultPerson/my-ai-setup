@@ -50,7 +50,7 @@ jobs:
               for path in root.rglob('*.yaml'):
                   yaml.safe_load(path.read_text())
 
-          for name in ('svgl', 'autoresearch', 'verify-done', 'grill-me'):
+          for name in ('svgl', 'autoresearch', 'verify-done', 'grill-me', 'ui-iterate'):
               bodies = [(root / name / 'SKILL.md').read_text().split('---', 2)[2] for root in roots]
               assert bodies[0] == bodies[1], name
           scripts = [(root / 'svgl/scripts/svgl.sh').read_bytes() for root in roots]
