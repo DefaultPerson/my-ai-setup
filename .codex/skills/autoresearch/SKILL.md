@@ -1,38 +1,21 @@
 ---
 name: autoresearch
-description: Run bounded Git experiments against one numeric metric; commit each change, measure it, then keep improvements or revert failures.
+description: Optimize one measured goal through bounded Git experiments; keep improvements and revert failures.
 ---
 
-Accept a goal, `--continue` or `--abort`. Run iterations in this session; do not schedule background work.
+Run in this session. Resolve scope, metric command, higher/lower direction, optional guard, command timeout and iteration cap (default 20). Undefined scope/measurement blocks the run. Require a clean tree and follow branch rules; no new branch, push or merge without authorization.
 
-## Setup
+Baseline: metric exits 0 and prints exactly one finite number; guard passes. Freeze measurement commands, implementation and fixtures. Record iteration 0 and commit state. Report baseline, scope, cap, timeout and `--abort`.
 
-Resolve `scope`, `metric_cmd`, optional `guard_cmd`, `direction` (higher/lower) and `max_iterations` (default 20). Ask only for missing decisions; without an answer channel, stop if the scope or measurement is undefined.
+Preserve the existing state format and unknown fields; update atomically:
+- `autoresearch-scratchpad.md`: YAML frontmatter with goal, scope, metric_cmd, guard_cmd, direction (`higher_is_better`/`lower_is_better`), best_metric, best_commit, iteration, max_iterations, status (`active`/`complete`/`aborted`), command_timeout; body holds brief lessons and next idea.
+- `autoresearch-history.tsv`: append-only columns iteration, commit, metric, delta, status, description, separated by actual tab characters; statuses BASELINE/KEEP/DISCARD/CRASH/GUARD_FAIL, delta against previous best. Preserve experiment SHAs even after reverting. Never replace another run's state without approval.
 
-Require a clean Git tree. Follow repository branch rules; create a branch only if requested. Run the baseline metric: exit 0 and exactly one finite number on stdout. Validate the optional guard too; an invalid baseline blocks the run. Freeze measurement commands and their implementation/fixtures for the run.
+Each iteration:
+1. Re-read state/history, check cap and unexplained dirty work; never stash/erase others' changes. Reconcile any interrupted experiment before starting another.
+2. Make one scoped change, excluding measurement/state files. Commit only its paths; save its exact SHA as `pending_commit` in the scratchpad before measuring. No amend/rebase.
+3. Measure and run the guard with the recorded timeout and fresh logs. Timeout, nonzero exit or invalid metric is CRASH; failing guard is GUARD_FAIL. KEEP only a strict improvement with a passing guard.
+4. Otherwise `git revert --no-edit <experiment-SHA>`; conflicts stop the run. Never reset or assume HEAD is the experiment. On resume, check whether a pending SHA was already reverted; uncertainty stops the run rather than reverting twice.
+5. Append outcome/lesson, update best only on KEEP, increment iteration, clear pending_commit and commit state after any revert. Report metric, delta and best. Pivot or stop when useful hypotheses run out.
 
-If state already exists, resume a matching active goal; otherwise ask before replacing it. Write baseline iteration 0 and commit the two state files. Report scope, baseline, direction, cap, branch and how to abort.
-
-## State
-
-Re-read these root files every iteration; preserve unknown fields and write updates atomically:
-
-- `autoresearch-scratchpad.md`: frontmatter `goal`, `scope`, `metric_cmd`, `guard_cmd`, `direction` (`higher_is_better`/`lower_is_better`), `best_metric`, `best_commit`, `iteration`, `max_iterations`, `status` (`active`/`complete`/`aborted`). Body sections: `What worked`, `What failed`, `Next to try`, `Blocked ideas`.
-- `autoresearch-history.tsv`: append-only header `iteration	commit	metric	delta	status	description`. Status: `BASELINE`, `KEEP`, `DISCARD`, `CRASH`, `GUARD_FAIL`; commit is the hash for kept/baseline changes, `REVERTED` otherwise. Delta is against the previous best.
-
-## Iteration
-
-1. Read state, the last 20 history rows and recent commits. Check the cap before editing. Stop on unexpected dirty work; do not stash or erase it.
-2. Pick one hypothesis: address the last crash first; block an idea after three repeated diffs/descriptions; pivot after more than five consecutive failed attempts; otherwise build on a recent improvement or try the next idea. No viable idea ends the run.
-3. Apply one atomic change inside `scope`, leaving measurement code and state untouched. Stage only its files and commit. Record that exact experiment SHA. No amend or rebase.
-4. Run the metric and optional guard, each into a fresh temporary log created in this iteration. Invalid/non-finite/multiple output values or nonzero metric exit mean `CRASH`; a failed guard means `GUARD_FAIL`.
-5. `KEEP` only a strict improvement with a passing guard. Otherwise revert the recorded experiment SHA with `git revert --no-edit <sha>`. Never assume HEAD still identifies it. If reverting conflicts, stop and report; do not reset away other work.
-6. Append the outcome, update best values only on KEEP, increment the iteration and record the lesson/next hypothesis. Commit state separately, after any revert. Print iteration, outcome, metric, best and delta. A failed experiment is recorded before moving to a different hypothesis.
-
-When delegation materially helps and is permitted, give one worker the hypothesis, scope and recent lessons. It edits/commits only; the parent measures and updates state. Return `result: applied|aborted`, `commit`, `files_changed`, `summary`, `lesson`. Verify its actual commit and tree even after an aborted or malformed reply; never continue over unexplained changes. Otherwise implement inline.
-
-## Finish / resume
-
-At the cap or when ideas are exhausted, mark `complete`, commit state and report baseline versus best, iterations/keeps/discards, best commit, branch and stop reason. `--abort` marks `aborted` and keeps accepted commits. Do not push or merge without authorization.
-
-`--continue` revalidates the recorded state and resumes; a completed/aborted run or exhausted cap requires an explicit extension or new goal. With no answer channel, report and stop.
+`--continue` revalidates state, measurement and pending SHA; finished runs/exhausted caps need explicit extension. `--abort` reverts and records any unaccepted pending experiment, marks aborted and keeps accepted changes. At cap/no viable idea, mark complete. Report baseline→best, iterations/outcomes, best SHA and stop reason.

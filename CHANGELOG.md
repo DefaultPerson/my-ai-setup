@@ -10,12 +10,17 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- `verify-setup` configures project-specific checks and agent instructions; `repo-maintain` handles authorized security findings, PR/MR feedback and exact-commit CI checks.
+- Codex `babysit`, sharing the session-only log filter with Claude Code: cursors, deduplication, bounded incident batches and current-chat reports.
 - Native `ui-iterate` for bounded UI/UX refinement: independent reviews, consistent visual comparisons and actual user-flow checks, adapted from Theo Browne's council process.
 - Native `svgl`, `autoresearch` and `verify-done` skills for Claude Code and Codex, plus Claude-only `babysit`, moved from `DefaultPerson/skills`.
 - A standalone `grill-me` adapted from Matt Pocock's `grill-me` and `grilling`, with no second skill dependency and explicit invocation in both clients.
 
 ### Changed
 
+- Reworked `babysit` around session-owned observation and scoped fixes, with deadlines and no persistent schedules or external notification requirement.
+- Shortened `autoresearch` while retaining fixed measurements, exact-SHA reverts and resumable state; removed its delegation recipe and added command timeouts and pending-experiment reconciliation.
+- Compressed `AGENTS.md` and `CLAUDE.md` into matching portable rules, preserving personal constraints and removing model-specific routing/CLI recipes.
 - Synced Codex delegation rules with the current global instructions: supported models, explicit effort and delegation independent of reasoning level.
 - Compressed skill descriptions and procedures; inlined worker/review roles, removed plugin orchestration, kept experiment state and acceptance rules, and added a deadline to service watches.
 - Documented native skill installation and prerequisites. CI now validates skill metadata, shell syntax and shared skill parity alongside the existing configuration checks.
@@ -29,6 +34,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+- Native `verify-done`, superseded by the project-configuration skill `verify-setup`.
 - Retired `cleanup`, `extract-links` and `network-check`; moved the network reference domains into Chrome bookmarks. Plugin manifests, packaging scripts, the old CI and changelog remain only in the source repository's history.
 - Both `commit` and `push-and-pr` skills, Claude's `repo-context`, both notification scripts and all 28 cached MP3 files.
 - `test_guard.py` and its CI matrix; plugin recommendations, TTS volume instructions and audio dependencies.

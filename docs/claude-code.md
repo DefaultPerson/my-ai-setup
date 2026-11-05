@@ -28,6 +28,8 @@ Prerequisites: Python 3.10+ (CI uses 3.12), uv. For /publish: git and authentica
 
 See README for skill descriptions and their prerequisites. Invoke skills by their plain names, for example `/svgl` or `/grill-me`.
 
+When upgrading, verify `verify-setup` loads, then retire the old native `verify-done` folder after checking its saved copy. `babysit` uses current-session events or foreground execution, never a persistent schedule; it reports in the same chat.
+
 Claude's five-hour status line segment is disabled in the script; weekly limits and the reset countdown remain enabled. Copying this setup does not remove hooks, skills or the old `as` plugin from an older installation; review those separately to avoid duplicates.
 
 ## Shell Aliases
