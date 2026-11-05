@@ -11,7 +11,8 @@ Prerequisites: Python 3.10+ (CI uses 3.12), uv. For /publish: git and authentica
 2. Create ~/.claude/hooks/ if absent. Install the guard from the downloaded directory:
    install -m 0644 ~/projects/misc/my-ai-setup/.claude/hooks/guard.py ~/.claude/hooks/guard.py
    Copy .claude/hooks/statusline.py there; preserve unrelated hook files.
-3. Copy .claude/skills/publish into ~/.claude/skills/; preserve unrelated skills.
+3. Copy the desired directories from .claude/skills/ into ~/.claude/skills/.
+   Include each skill's scripts and metadata; preserve unrelated skills. No plugin is needed.
 4. Merge the needed entries from .claude/settings.example.json into ~/.claude/settings.json:
    the guard PreToolUse hook, statusLine, and relevant preferences. Create the file if absent;
    preserve existing settings and hooks, including agent integrations. Do not duplicate matching entries.
@@ -25,7 +26,9 @@ Prerequisites: Python 3.10+ (CI uses 3.12), uv. For /publish: git and authentica
 8. Keep ~/projects/misc/my-ai-setup: guard updates use this source path.
 ```
 
-Claude's five-hour status line segment is disabled in the script; weekly limits and the reset countdown remain enabled. Copying this setup does not remove hooks or skills from an older installation; review those separately.
+See README for skill descriptions and their prerequisites. Invoke skills by their plain names, for example `/svgl` or `/grill-me`.
+
+Claude's five-hour status line segment is disabled in the script; weekly limits and the reset countdown remain enabled. Copying this setup does not remove hooks, skills or the old `as` plugin from an older installation; review those separately to avoid duplicates.
 
 ## Shell Aliases
 

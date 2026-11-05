@@ -6,7 +6,24 @@ Shared setup for [Claude Code](https://code.claude.com/docs) and [OpenAI Codex C
 
 - **Guard** — blocks selected destructive commands and credential reads with a reason.
 - **Status line** — Claude Code script with context, cost and weekly limits with reset countdown; Codex uses its built-in status line.
-- **`/publish`** — publish a repository to GitHub or update its GitHub setup within the requested scope.
+
+## Skills
+
+Native skill folders, without a plugin or marketplace. Claude: `/name`; Codex: `$name`.
+
+- **publish** — publish a repository or update its GitHub setup within the requested scope.
+- **svgl** — fetch brand and technology SVG logos, including theme and wordmark variants.
+- **autoresearch** — bounded experiments against one metric: commit, measure, keep or revert.
+- **verify-done** — check the original requirements and real scenarios; report gaps without fixing them.
+- **grill-me** — stress-test a plan through questions ordered by their dependencies, before implementation.
+- **babysit** — watch a service, coordinate scoped fixes and deployment, and escalate trouble; Claude Code only.
+
+## Prerequisites
+
+- Hooks: Python 3.10+; Claude's hook runner also uses `uv`.
+- `publish`: Git and authenticated GitHub CLI (`gh`); `autoresearch`: Git and the project's metric/test tools.
+- `svgl`: Bash, curl and jq, with network access to svgl.app.
+- `babysit`: Claude Code `/loop`, service log/health access and an escalation channel; deployment modes need a recovery path.
 
 ## Setup
 

@@ -4,8 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Native `svgl`, `autoresearch` and `verify-done` skills for Claude Code and Codex, plus Claude-only `babysit`, moved from `DefaultPerson/skills`.
+- A standalone `grill-me` adapted from Matt Pocock's `grill-me` and `grilling`, with no second skill dependency and explicit invocation in both clients.
+
 ### Changed
 
+- Compressed skill descriptions and procedures; inlined worker/review roles, removed plugin orchestration, kept experiment state and acceptance rules, and added a deadline to service watches.
+- Documented native skill installation and prerequisites. CI now validates skill metadata, shell syntax and shared skill parity alongside the existing configuration checks.
 - Renamed `ai-setup` to `my-ai-setup`; updated the repository links and local installation paths.
 - Renamed `agent-setup` to `ai-setup`; updated the repository links, installation paths and guard update paths.
 - Reduced both `publish` skills to scoped publishing and setup changes, private repositories by default, and questions only for missing decisions. Kept personal Git conventions in `AGENTS.md` and `CLAUDE.md`.
@@ -16,6 +23,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+- Retired `cleanup`, `extract-links` and `network-check`; moved the network reference domains into Chrome bookmarks. Plugin manifests, packaging scripts, the old CI and changelog remain only in the source repository's history.
 - Both `commit` and `push-and-pr` skills, Claude's `repo-context`, both notification scripts and all 28 cached MP3 files.
 - `test_guard.py` and its CI matrix; plugin recommendations, TTS volume instructions and audio dependencies.
 - Notification settings, empty protected-unit setting, the pinned Codex model, deprecated personality setting and bundled Context7 configuration.

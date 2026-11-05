@@ -15,7 +15,8 @@ Prerequisites: Python 3.10+ (CI uses 3.12), available as python3. For /publish: 
    matcher Bash|apply_patch, command python3 "$HOME/.codex/hooks/guard.py".
    Create the file if absent; preserve existing hooks, including agent integrations,
    and do not duplicate a matching entry.
-4. Copy .codex/skills/publish into ~/.codex/skills/; preserve unrelated skills.
+4. Copy the desired directories from .codex/skills/ into ~/.codex/skills/.
+   Include each skill's scripts and metadata; preserve unrelated skills. No plugin is needed.
 5. Merge desired preferences from .codex/config.toml.sample into ~/.codex/config.toml;
    create the file if absent, preserving existing configuration and MCP servers.
 6. Optionally merge AGENTS.md into ~/.codex/AGENTS.md — author's coding style and rules.
@@ -28,7 +29,9 @@ Prerequisites: Python 3.10+ (CI uses 3.12), available as python3. For /publish: 
 10. Keep ~/projects/misc/my-ai-setup: guard updates use this source path.
 ```
 
-Copying this setup does not remove hooks or skills from an older installation; review those separately.
+See README for skill descriptions and their prerequisites. Invoke skills by their plain names, for example `$svgl` or `$grill-me`. `babysit` requires Claude's `/loop` and is not included in the Codex set.
+
+Copying this setup does not remove hooks, skills or the old `as` plugin from an older installation; review those separately to avoid duplicates.
 
 **Key differences from Claude Code:**
 - Config: `config.toml` (TOML) instead of `settings.json`
