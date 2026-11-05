@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- `svgl` now parses the complete XML and requires an SVG root before replacing an output file; XML declarations, embedded SVG strings and malformed documents no longer pass validation.
+
 ### Added
 
 - Native `svgl`, `autoresearch` and `verify-done` skills for Claude Code and Codex, plus Claude-only `babysit`, moved from `DefaultPerson/skills`.

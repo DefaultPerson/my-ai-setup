@@ -3,7 +3,7 @@ name: svgl
 description: Fetch brand and technology SVG logos from svgl.app by name or category, with theme and wordmark variants.
 ---
 
-Use the bundled `scripts/svgl.sh` (Bash, curl, jq); resolve its path from this skill directory.
+Use the bundled `scripts/svgl.sh` (Bash, curl, jq, Python 3); resolve its path from this skill directory.
 
 - `categories` lists exact category names; `search <query> [limit]` and `category <name> [limit]` return JSON; `download <url> <outfile>` saves one asset.
 - User options: `--theme light|dark|both` (default both), `--wordmark`, `--out` (default `./svgl`), `--limit`, `--all`, `--json`, `--force`. Interpret these yourself; the helper accepts only the subcommands above. `--json` returns metadata without downloads.

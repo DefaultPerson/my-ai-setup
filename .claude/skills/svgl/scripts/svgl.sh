@@ -8,7 +8,7 @@
 #   download <url> <outfile>   -> fetch one SVG to <outfile>, validate, print "saved <outfile>"
 #
 # Base: https://api.svgl.app  (NOT svgl.app/api — that path returns nothing).
-# Deps: curl, jq. No auth. Rate limit is undocumented -> up to two backoff retries on HTTP 429.
+# Deps: curl, jq, python3. No auth. Up to two backoff retries on HTTP 429.
 # Exit: 0 on success; non-zero with an "ERROR: …" line on stderr otherwise.
 
 set -uo pipefail
@@ -72,8 +72,23 @@ case "$cmd" in
       code="$(curl -s -A "$UA" --max-time 25 -w '%{http_code}' -o "$tmp" "$url")" || { echo "ERROR: fetch failed: $url" >&2; exit 1; }
     fi
     [ "$code" = "200" ] || { echo "ERROR: HTTP $code for $url" >&2; exit 1; }
-    # Validate it is actually an SVG (allow a leading XML decl / comments / BOM).
-    head -c 1024 "$tmp" | grep -qiE '<svg|<\?xml' || { echo "ERROR: not an SVG (no <svg>/<?xml in first 1KB): $url" >&2; exit 1; }
+    # Parse the whole XML document and require an SVG root, not an XML declaration.
+    if ! python3 - "$tmp" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+try:
+    root = ET.parse(sys.argv[1]).getroot()
+except (ET.ParseError, OSError) as exc:
+    print(f"ERROR: invalid SVG XML: {exc}", file=sys.stderr)
+    sys.exit(1)
+if root.tag not in ("svg", "{http://www.w3.org/2000/svg}svg"):
+    print("ERROR: document root is not SVG", file=sys.stderr)
+    sys.exit(1)
+PY
+    then
+      exit 1
+    fi
     # mktemp creates 0600; a downloaded asset should be readable like any other file.
     chmod 644 "$tmp"
     mkdir -p "$dir" && mv "$tmp" "$out" || { echo "ERROR: cannot write $out" >&2; exit 1; }

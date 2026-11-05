@@ -22,7 +22,7 @@ Native skill folders, without a plugin or marketplace. Claude: `/name`; Codex: `
 
 - Hooks: Python 3.10+; Claude's hook runner also uses `uv`.
 - `publish`: Git and authenticated GitHub CLI (`gh`); `autoresearch`: Git and the project's metric/test tools.
-- `svgl`: Bash, curl and jq, with network access to svgl.app.
+- `svgl`: Bash, curl, jq and Python 3, with network access to svgl.app.
 - `babysit`: Claude Code `/loop`, service log/health access and an escalation channel; deployment modes need a recovery path.
 
 ## Setup
