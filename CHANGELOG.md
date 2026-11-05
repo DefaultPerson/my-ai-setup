@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Documented migration cleanup: retain one current native skill/plugin registration, remove legacy `as` sources and stale project copies, and preserve unrelated installations.
 - Reworked `babysit` around session-owned observation and scoped fixes, with deadlines and no persistent schedules or external notification requirement.
 - Shortened `autoresearch` while retaining fixed measurements, exact-SHA reverts and resumable state; removed its delegation recipe and added command timeouts and pending-experiment reconciliation.
 - Compressed `AGENTS.md` and `CLAUDE.md` into matching portable rules, preserving personal constraints and removing model-specific routing/CLI recipes.
@@ -34,6 +35,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+- Legacy `as` installations, redundant native skill copies and duplicate Claude project registrations from the desktop/server setup; kept current native skills and the system skill creator.
 - Native `verify-done`, superseded by the project-configuration skill `verify-setup`.
 - Retired `cleanup`, `extract-links` and `network-check`; moved the network reference domains into Chrome bookmarks. Plugin manifests, packaging scripts, the old CI and changelog remain only in the source repository's history.
 - Both `commit` and `push-and-pr` skills, Claude's `repo-context`, both notification scripts and all 28 cached MP3 files.
