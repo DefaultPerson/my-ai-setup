@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Synced Codex delegation rules with the current global instructions: supported models, explicit effort and delegation independent of reasoning level.
 - Compressed skill descriptions and procedures; inlined worker/review roles, removed plugin orchestration, kept experiment state and acceptance rules, and added a deadline to service watches.
 - Documented native skill installation and prerequisites. CI now validates skill metadata, shell syntax and shared skill parity alongside the existing configuration checks.
 - Renamed `ai-setup` to `my-ai-setup`; updated the repository links and local installation paths.
