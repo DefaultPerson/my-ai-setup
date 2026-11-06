@@ -15,18 +15,18 @@ Native skill folders, without a plugin or marketplace. Claude: `/name`; Codex: `
 - **svgl** — fetch brand and technology SVG logos, including theme and wordmark variants.
 - **autoresearch** — bounded experiments against one metric: commit, measure, keep or revert.
 - **verify-setup** — add minimal project verification instructions, reusing existing checks and real user scenarios.
-- **grill-me** — stress-test a plan through questions ordered by their dependencies, before implementation.
-- **ui-iterate** — refine UI/UX through bounded independent reviews, visual references and real user-flow checks.
+- **grill-me** — stress-test a plan through questions ordered by their dependencies, before implementation; also invoked automatically when you ask to be grilled.
+- **ui-polish** — autonomously polish a UI to a target score: screenshots, scored reviews from two model families, fixes and real user-flow checks.
 - **babysit** — filter log incidents within the current session and deadline; make authorized fixes and report here.
-- **repo-maintain** — address security findings, PR/MR feedback and failing CI within the authorized scope.
+- **repo-maintain** — address security findings, PR/MR feedback and failing CI within the authorized scope; waits for CI and merges only through an explicit merge gate.
 
 ## Prerequisites
 
 - Hooks: Python 3.10+; Claude's hook runner also uses `uv`.
 - `publish`: Git and authenticated GitHub CLI (`gh`); `repo-maintain`: authenticated host API/CLI access; `autoresearch`: Git and the project's metric/test tools.
 - `svgl`: Bash, curl, jq and Python 3, with network access to svgl.app.
-- `babysit`: Python 3, readable logs and a session-owned event/foreground runner. Reports stay in the current chat; client push delivery is not guaranteed, and monitoring ends with the session/deadline.
-- `ui-iterate`: a running UI or screenshots and available review agents; interaction checks require access to the actual UI.
+- `babysit`: Python 3 and readable logs. Claude Code runs the filter under its `Monitor` tool; Codex uses a session-owned event or foreground runner. Reports stay in the current chat, and monitoring ends with the session/deadline.
+- `ui-polish`: a runnable UI, `agent-browser` for screenshots and flows, and Codex CLI for the second reviewer (Claude CLI when run from Codex).
 
 `verify-setup` replaces `verify-done`: it configures project checks rather than performing a standalone acceptance audit. `babysit` is available in both clients and creates no persistent schedule.
 

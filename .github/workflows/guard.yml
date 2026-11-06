@@ -50,13 +50,16 @@ jobs:
               for path in root.rglob('*.yaml'):
                   yaml.safe_load(path.read_text())
 
-          for name in ('svgl', 'autoresearch', 'verify-setup', 'grill-me', 'ui-iterate', 'babysit', 'repo-maintain'):
+          for name in ('svgl', 'autoresearch', 'verify-setup', 'grill-me', 'ui-polish', 'publish', 'repo-maintain'):
               bodies = [(root / name / 'SKILL.md').read_text().split('---', 2)[2] for root in roots]
               assert bodies[0] == bodies[1], name
           scripts = [(root / 'svgl/scripts/svgl.sh').read_bytes() for root in roots]
           assert scripts[0] == scripts[1]
           watchers = [(root / 'babysit/scripts/watch.py').read_bytes() for root in roots]
           assert watchers[0] == watchers[1]
-          policy = yaml.safe_load(Path('.codex/skills/grill-me/agents/openai.yaml').read_text())
-          assert policy['policy']['allow_implicit_invocation'] is False
+          for name, implicit in (('grill-me', True), ('publish', False)):
+              policy = yaml.safe_load(Path(f'.codex/skills/{name}/agents/openai.yaml').read_text())
+              assert policy['policy']['allow_implicit_invocation'] is implicit, name
           PY
+      - name: Test skill helpers
+        run: python -m unittest discover -s tests -v

@@ -28,7 +28,7 @@ Prerequisites: Python 3.10+ (CI uses 3.12), uv. For /publish: git and authentica
 
 See README for skill descriptions and their prerequisites. Invoke skills by their plain names, for example `/svgl` or `/grill-me`.
 
-When upgrading, verify the native skills load, then retire `as@as` and its marketplace, `verify-done`, `repo-context` and the old `grilling` dependency after checking saved copies. Keep one user registration per retained plugin; remove redundant project registrations without deleting shared cache files still in use. `babysit` uses current-session events or foreground execution and reports in the same chat.
+When upgrading, verify the native skills load, then retire `as@as` and its marketplace, `verify-done`, `repo-context` and the old `grilling` dependency after checking saved copies. Keep one user registration per retained plugin; remove redundant project registrations without deleting shared cache files still in use. `babysit` streams the filter through the `Monitor` tool and reports in the same chat.
 
 Claude's five-hour status line segment is disabled in the script; weekly limits and the reset countdown remain enabled. Copying this setup does not uninstall older hooks, skills or plugins; preserve unrelated installations.
 

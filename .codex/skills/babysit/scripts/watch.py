@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bounded, foreground-only log filter. JSON batches; no model or notifications."""
+"""Bounded log filter. JSON batches on stdout; --follow streams them until the deadline."""
 import argparse
 import base64
 import hashlib
@@ -141,6 +141,7 @@ def main():
     parser.add_argument("--session-id", required=True)
     parser.add_argument("--deadline", type=float, required=True, help="fixed Unix timestamp")
     parser.add_argument("--from-start", action="store_true")
+    parser.add_argument("--follow", action="store_true", help="keep emitting batches until deadline/stop")
     parser.add_argument("--pattern", default=r"\b(error|exception|failed|fatal|panic|critical)\b")
     parser.add_argument("--critical", default=r"\b(critical|fatal|panic)\b")
     parser.add_argument("--cooldown", type=float, default=60)
@@ -171,7 +172,7 @@ def main():
             report(args, state, ended=True)
             return
         collect(args, state, pattern, critical)
-        if report(args, state):
+        if report(args, state) and (not args.follow or state["failures"] >= 3 or state["overflow"]):
             return
         save(args.state, state)
         if state.get("backlog_bytes_at_read"):

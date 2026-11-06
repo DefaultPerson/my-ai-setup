@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Interview me to stress-test a plan, design or decision, resolve dependencies and expose assumptions before implementation.
+description: Interview the user to stress-test a plan, design or decision, resolve dependencies and expose assumptions before implementation. Use when asked to grill, interview, challenge or stress-test a plan, in any language.
 ---
 
 Map the decision tree and its dependencies. In each round, ask the current frontier: all unresolved decisions whose prerequisites are already settled. Number the questions, give a concise recommended answer for each, and make “yes” accept that recommendation. Wait for the answers before asking dependent questions.
