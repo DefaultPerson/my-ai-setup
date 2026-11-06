@@ -15,7 +15,7 @@ Native skill folders, without a plugin or marketplace. Claude: `/name`; Codex: `
 - **svgl** — fetch brand and technology SVG logos, including theme and wordmark variants.
 - **grill-me** — stress-test a plan through questions ordered by their dependencies, before implementation; also invoked automatically when you ask to be grilled.
 - **ui-polish** — autonomously polish a UI to a target score: screenshots, scored reviews from two model families, fixes and real user-flow checks.
-- **babysit** — watch journald, `docker logs` or a log file through a quiet dedup filter for the session; make authorized fixes and report here.
+- **babysit** — watch journald, `docker logs` or a log file through a `grep | awk` dedup filter for the session; make authorized fixes and report here.
 - **repo-maintain** — address security findings, PR/MR feedback and failing CI within the authorized scope; waits for CI and merges only through an explicit merge gate.
 
 ## Prerequisites
@@ -23,7 +23,7 @@ Native skill folders, without a plugin or marketplace. Claude: `/name`; Codex: `
 - Hooks: Python 3.10+; Claude's hook runner also uses `uv`.
 - `publish`: Git and authenticated GitHub CLI (`gh`); `repo-maintain`: authenticated host API/CLI access.
 - `svgl`: Bash, curl, jq and Python 3, with network access to svgl.app.
-- `babysit`: Python 3 and a log source command (`journalctl`, `docker logs` over ssh, `tail -F`) that the filter starts and stops. Claude Code runs it under its `Monitor` tool; Codex reruns it in the foreground with `--once`. Reports stay in the current chat, and monitoring ends with the session/deadline.
+- `babysit`: a log source (`journalctl`, `docker logs` over ssh, `tail -F`), `grep` and `awk`. Claude Code runs the pipeline under its `Monitor` tool; Codex runs it in timed foreground slices. Reports stay in the current chat, and monitoring ends with the session/deadline.
 - `ui-polish`: a runnable UI, `agent-browser` for screenshots and flows, and Codex CLI for the second reviewer (Claude CLI when run from Codex).
 
 `babysit` is available in both clients and creates no persistent schedule.

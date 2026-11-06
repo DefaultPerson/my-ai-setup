@@ -55,8 +55,6 @@ jobs:
               assert bodies[0] == bodies[1], name
           scripts = [(root / 'svgl/scripts/svgl.sh').read_bytes() for root in roots]
           assert scripts[0] == scripts[1]
-          watchers = [(root / 'babysit/scripts/watch.py').read_bytes() for root in roots]
-          assert watchers[0] == watchers[1]
           for name, implicit in (('grill-me', True), ('publish', False)):
               policy = yaml.safe_load(Path(f'.codex/skills/{name}/agents/openai.yaml').read_text())
               assert policy['policy']['allow_implicit_invocation'] is implicit, name

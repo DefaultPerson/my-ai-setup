@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Unit tests for the `babysit` filter and the `svgl` helper run in CI.
+- Unit tests for the `svgl` helper run in CI.
 - `verify-setup` configures project-specific checks and agent instructions; `repo-maintain` handles authorized security findings, PR/MR feedback and exact-commit CI checks.
 - Codex `babysit`, sharing the session-only log filter with Claude Code: cursors, deduplication, bounded incident batches and current-chat reports.
 - Native `ui-iterate` for bounded UI/UX refinement: independent reviews, consistent visual comparisons and actual user-flow checks, adapted from Theo Browne's council process.
@@ -19,12 +19,12 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- `babysit`'s `watch.py` now starts the source command itself (or reads stdin) and stops it on exit, so journald, `docker logs` over ssh and `tail -F` work the same way; the file cursor and state logic is gone (184 → 130 lines). Claude streams it under `Monitor`, Codex reruns it with `--once`.
+- `babysit` is instructions only: a `grep | awk` pipeline dedups incidents from journald, `docker logs` over ssh or `tail -F`; `watch.py` and its tests are removed. Claude streams it under `Monitor`, Codex runs timed foreground slices.
 - `ui-polish` captures from a production build, gives reviewers the diff, re-captures pages that render changed shared components and ends with a scoring-only review of the final state.
 - Renamed `ui-iterate` to `ui-polish` and made it autonomous: it starts the UI, captures screens with `agent-browser`, runs a two-family council with a blocker/should/nit contract, and loops to a 9/10 target within 5 rounds.
 - `repo-maintain` waits for CI under Claude's `Monitor`, falls back to REST when GraphQL is exhausted, and merges only through an explicit merge gate, adapted from tstack's `babysit-pr` and `full-send`.
 - `grill-me` can now be invoked by the model in both clients, not only by name.
-- Claude `babysit` now runs its filter under the `Monitor` tool and drops Codex-specific runner caveats; it no longer has to match the Codex body.
+- Claude `babysit` drops Codex-specific runner caveats; it no longer has to match the Codex body.
 - Shortened `publish` and `autoresearch`; Codex `publish` is explicit-only like `grill-me`, and CI now checks `publish` parity.
 - Documented migration cleanup: retain one current native skill/plugin registration, remove legacy `as` sources and stale project copies, and preserve unrelated installations.
 - Reworked `babysit` around session-owned observation and scoped fixes, with deadlines and no persistent schedules or external notification requirement.
