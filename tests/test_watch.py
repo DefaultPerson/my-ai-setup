@@ -1,7 +1,6 @@
 import json
 import subprocess
 import sys
-import tempfile
 import time
 import unittest
 from pathlib import Path
@@ -9,97 +8,80 @@ from pathlib import Path
 WATCH = Path(__file__).resolve().parents[1] / ".claude/skills/babysit/scripts/watch.py"
 
 
+def run(text, *extra, deadline=20):
+    result = subprocess.run([sys.executable, str(WATCH), "--deadline", str(time.time() + deadline), *extra],
+                            input=text, capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stderr
+    return [json.loads(line) for line in result.stdout.splitlines()]
+
+
 class WatchTest(unittest.TestCase):
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.dir = Path(self.tmp.name)
-        self.log = self.dir / "app.log"
-        self.state = self.dir / "state.json"
-        self.log.write_text("")
-        self.deadline = time.time() + 20
+    def test_reports_new_incident_and_counts_repeats(self):
+        events = run("2026-01-01T10:00:00Z ERROR db down after 3 retries\ninfo ok\n"
+                     "2026-01-01T10:00:05Z ERROR db down after 4 retries\n"
+                     "2026-01-01T10:00:09Z ERROR db down after 5 retries\n")
+        self.assertEqual([e["event"] for e in events], ["incident", "repeat", "eof"])
+        self.assertIn("db down", events[0]["sample"])
+        self.assertEqual(events[1]["count"], 2)
 
-    def tearDown(self):
-        self.tmp.cleanup()
+    def test_ignores_normal_lines(self):
+        self.assertEqual([e["event"] for e in run("info ok\nstarted\n")], ["eof"])
 
-    def args(self, *extra, deadline=None):
-        return [sys.executable, str(WATCH), "--log", str(self.log), "--state", str(self.state),
-                "--session-id", "test", "--deadline", str(deadline or self.deadline),
-                "--interval", "0.05", *extra]
+    def test_critical_escalates_known_signature(self):
+        events = run("error worker stopped\nFATAL error worker stopped\n")
+        self.assertEqual([e["critical"] for e in events if e["event"] == "incident"], [False, True])
 
-    def run_once(self, *extra, deadline=None):
-        result = subprocess.run(self.args(*extra, deadline=deadline), capture_output=True,
-                                text=True, timeout=30)
-        self.assertEqual(result.returncode, 0, result.stderr)
-        return json.loads(result.stdout)
+    def test_last_line_without_newline(self):
+        events = run("ERROR tail line")
+        self.assertEqual(events[0]["event"], "incident")
 
-    def test_deduplicates_matching_lines(self):
-        self.log.write_text("2026-01-01T10:00:00Z ERROR db down\ninfo ok\n"
-                            "2026-01-01T10:00:05Z ERROR db down\n")
-        batch = self.run_once("--from-start")
-        self.assertEqual(batch["event"], "incidents")
-        self.assertEqual(len(batch["items"]), 1)
-        self.assertEqual(batch["items"][0]["count"], 2)
-        self.assertIn("<time>", batch["items"][0]["sample"])
+    def test_overflow_keeps_critical_lines(self):
+        events = run("ERROR alpha\nERROR beta\nERROR gamma\nFATAL delta\n", "--max-signatures", "2")
+        kinds = [e["event"] for e in events]
+        self.assertEqual(kinds.count("overflow"), 1)
+        self.assertTrue(any(e.get("critical") and "delta" in e["sample"] for e in events))
+        self.assertFalse(any("gamma" in e.get("sample", "") for e in events))
 
-    def test_quiet_log_reaches_deadline(self):
-        self.log.write_text("info ok\n")
-        batch = self.run_once("--from-start", deadline=time.time() + 0.5)
-        self.assertEqual(batch["event"], "deadline")
-        self.assertEqual(batch["items"], [])
-        self.assertTrue(batch["stopped"])
-
-    def test_starts_at_end_of_file_by_default(self):
-        self.log.write_text("ERROR old\n")
-        batch = self.run_once(deadline=time.time() + 0.5)
-        self.assertEqual(batch["items"], [])
-
-    def test_critical_flag(self):
-        self.log.write_text("FATAL out of memory\n")
-        item = self.run_once("--from-start")["items"][0]
-        self.assertTrue(item["critical"])
-
-    def test_rotation_reports_gap(self):
-        self.log.write_text("ERROR first\n")
-        self.run_once("--from-start")
-        self.log.unlink()
-        self.log.write_text("ERROR second\n")
-        batch = self.run_once("--from-start")
-        kinds = [item.get("kind") for item in batch["items"]]
-        self.assertIn("coverage_gap", kinds)
-        self.assertTrue(any("second" in item.get("sample", "") for item in batch["items"]))
-
-    def test_rejects_state_from_other_config(self):
-        self.log.write_text("ERROR first\n")
-        self.run_once("--from-start")
-        result = subprocess.run(self.args("--from-start", "--pattern", "other"),
-                                capture_output=True, text=True, timeout=30)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("another session", result.stderr)
-
-    def test_follow_streams_batches_until_deadline(self):
-        process = subprocess.Popen(self.args("--follow", "--cooldown", "0",
-                                             deadline=time.time() + 3),
-                                   stdout=subprocess.PIPE, text=True)
-        stdout = process.stdout
-        assert stdout is not None
+    def test_deadline_with_open_quiet_source(self):
+        process = subprocess.Popen([sys.executable, str(WATCH), "--deadline", str(time.time() + 1)],
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
         try:
-            time.sleep(0.5)
-            with self.log.open("a") as handle:
-                handle.write("ERROR one\n")
-            first = json.loads(stdout.readline())
-            with self.log.open("a") as handle:
-                handle.write("ERROR two\n")
-            second = json.loads(stdout.readline())
-            last = json.loads(stdout.readline())
+            assert process.stdout is not None
+            line = process.stdout.readline()
+            self.assertEqual(json.loads(line)["event"], "deadline")
             self.assertEqual(process.wait(timeout=10), 0)
         finally:
             process.kill()
-            stdout.close()
-        self.assertIn("one", first["items"][0]["sample"])
-        self.assertIn("two", second["items"][0]["sample"])
-        self.assertFalse(first["stopped"])
-        self.assertEqual(last["event"], "deadline")
+            for stream in (process.stdin, process.stdout):
+                if stream:
+                    stream.close()
 
+    def test_streams_events_and_once_exits_after_first(self):
+        process = subprocess.Popen([sys.executable, str(WATCH), "--deadline", str(time.time() + 10),
+                                    "--once"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+        try:
+            assert process.stdin is not None and process.stdout is not None
+            process.stdin.write("ERROR one\n")
+            process.stdin.flush()
+            self.assertIn("one", json.loads(process.stdout.readline())["sample"])
+            self.assertEqual(process.wait(timeout=10), 0)
+        finally:
+            process.kill()
+            for stream in (process.stdin, process.stdout):
+                if stream:
+                    stream.close()
+
+
+    def test_runs_source_command_and_stops_it(self):
+        started = time.time()
+        events = run("", "--once", "--", "sh", "-c", "echo ERROR from child; exec sleep 30")
+        self.assertIn("from child", events[0]["sample"])
+        self.assertLess(time.time() - started, 10)
+        self.assertEqual(subprocess.run(["pgrep", "-f", "exec sleep 30"]).returncode, 1)
+
+    def test_command_exit_is_eof(self):
+        events = run("", "--", "sh", "-c", "echo boom >&2; exit 3")
+        self.assertEqual([e["event"] for e in events], ["eof"])
 
 if __name__ == "__main__":
     unittest.main()
