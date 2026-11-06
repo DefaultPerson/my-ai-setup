@@ -28,8 +28,8 @@
 
 ## Models and scale
 - Delegate independent work when it materially improves speed/quality; runtime restrictions and "no agents" override this authorization. Reasoning effort grants no delegation permission.
-- Set supported model and effort explicitly; honor the user's model and runtime routing. Use stronger reasoning for code/infra/actionable conclusions, lighter models for bounded search/extraction. Keep the main agent driving; announce needed deeper reasoning and raise its supported effort instead of spawning substitutes.
-- Use the fewest agents/passes needed; explain large fan-outs and obtain approval first. Give each agent full necessary context, one independent task and an exact output contract.
+- Set model and effort on every delegated agent by task: haiku/low–medium for fetching, extraction and classification, sonnet/low for search, sonnet/medium for sweeps, review and verification, opus/high for code, debugging, infra and conclusions you act on; xhigh or max only on request. Omitted values inherit the session's, including in skills and named workflows. Honor the user's model and runtime routing. Keep the main agent driving; announce needed deeper reasoning and raise its supported effort instead of spawning substitutes.
+- Use the fewest agents/passes needed; state the agent count before launch and get approval above 10 unless the user invoked that workflow by name. Give each agent full necessary context, one independent task and an exact output contract.
 - Do short tasks yourself. Add independent/adversarial review only for a concrete quality need, limited to requirement gaps; prefer a different model family when available and permitted, without installing tools or silently switching providers/models.
 - "Save tokens"/"no agents" lasts the session: no new agents until asked again, stop redundant running agents, write less, retain necessary checks.
 

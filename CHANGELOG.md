@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- `CLAUDE.md`/`AGENTS.md`: every delegated agent sets model and effort by task (haiku for fetching and extraction, sonnet for search and review, opus/high for code and conclusions); agent count stated before launch and approval above 10 unless the user invoked the workflow by name.
 - `babysit` is instructions only: a `grep | awk` pipeline dedups incidents from journald, `docker logs` over ssh or `tail -F`; `watch.py` and its tests are removed. Claude streams it under `Monitor`, Codex runs timed foreground slices.
 - `ui-polish` captures from a production build, gives reviewers the diff, re-captures pages that render changed shared components and ends with a scoring-only review of the final state.
 - Renamed `ui-iterate` to `ui-polish` and made it autonomous: it starts the UI, captures screens with `agent-browser`, runs a two-family council with a blocker/should/nit contract, and loops to a 9/10 target within 5 rounds.
