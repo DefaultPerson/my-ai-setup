@@ -41,6 +41,8 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+- `verify-setup`; the global agent instructions already require real-scenario verification.
+- `autoresearch`, moved to the `hydra-monitors/hm-core` project skills.
 - Legacy `as` installations, redundant native skill copies and duplicate Claude project registrations from the desktop/server setup; kept current native skills and the system skill creator.
 - Native `verify-done`, superseded by the project-configuration skill `verify-setup`.
 - Retired `cleanup`, `extract-links` and `network-check`; moved the network reference domains into Chrome bookmarks. Plugin manifests, packaging scripts, the old CI and changelog remain only in the source repository's history.

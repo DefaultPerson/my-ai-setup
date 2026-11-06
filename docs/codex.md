@@ -31,7 +31,7 @@ Prerequisites: Python 3.10+ (CI uses 3.12), available as python3. For /publish: 
 
 See README for skill descriptions and their prerequisites. Invoke skills by their plain names, for example `$svgl` or `$grill-me`. `babysit` uses current-session events or foreground execution and reports in the same chat; it creates no persistent schedule.
 
-When upgrading, verify the native skills load, then retire `as@as`, the Codex-only installation of `codex@openai-codex`, their unused marketplace sources, and old native `verify-done`/`repo-context` after checking saved copies. Keep the system `skill-creator` and one user copy of `publish` in `~/.codex/skills`.
+When upgrading, verify the native skills load, then retire `as@as`, the Codex-only installation of `codex@openai-codex`, their unused marketplace sources, and old native `verify-done`/`verify-setup`/`autoresearch`/`repo-context` after checking saved copies. Keep the system `skill-creator` and one user copy of `publish` in `~/.codex/skills`.
 
 Check project `.agents/skills` for old `commit`, `push-and-pr`, `publish` and `repo-context` copies too: ignored files are still discoverable. Copying this setup does not uninstall older hooks, skills or plugins; preserve unrelated installations.
 
