@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Native `audit` for Claude Code and Codex, explicit invocation only: profiles the software and plans deep, quick and skipped checks, then covers performance, security via an ASVS 5.0 subagent and reliability, with references pinned to commits.
 - Unit tests for the `svgl` helper run in CI.
 - `verify-setup` configures project-specific checks and agent instructions; `repo-maintain` handles authorized security findings, PR/MR feedback and exact-commit CI checks.
 - Codex `babysit`, sharing the session-only log filter with Claude Code: cursors, deduplication, bounded incident batches and current-chat reports.

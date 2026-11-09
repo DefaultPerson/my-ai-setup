@@ -17,6 +17,7 @@ Native skill folders, without a plugin or marketplace. Claude: `/name`; Codex: `
 - **ui-polish** — autonomously polish a UI to a target score: screenshots, scored reviews from two model families, fixes and real user-flow checks.
 - **babysit** — watch journald, `docker logs` or a log file through a `grep | awk` dedup filter for the session; make authorized fixes and report here.
 - **repo-maintain** — address security findings, PR/MR feedback and failing CI within the authorized scope; waits for CI and merges only through an explicit merge gate.
+- **audit** — audit an app for performance, security and reliability: pick what matters for this software, go deep on the riskiest areas, skip the rest with reasons; report only by default.
 
 ## Prerequisites
 
@@ -25,6 +26,7 @@ Native skill folders, without a plugin or marketplace. Claude: `/name`; Codex: `
 - `svgl`: Bash, curl, jq and Python 3, with network access to svgl.app.
 - `babysit`: a log source (`journalctl`, `docker logs` over ssh, `tail -F`), `grep` and `awk`. Claude Code runs the pipeline under its `Monitor` tool; Codex runs it in timed foreground slices. Reports stay in the current chat, and monitoring ends with the session/deadline.
 - `ui-polish`: a runnable UI, `agent-browser` for screenshots and flows, and Codex CLI for the second reviewer (Claude CLI when run from Codex).
+- `audit`: network access to raw.githubusercontent.com and api.github.com for the pinned references; load and scan tools (`k6`/`oha`/`wrk`, `py-spy`, `pprof`, `govulncheck`, `pip-audit`, `npm audit`, `gitleaks`) are used only when installed.
 
 `babysit` is available in both clients and creates no persistent schedule.
 
